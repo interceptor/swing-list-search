@@ -4,6 +4,7 @@ import model.FileStats;
 import table.FileStatsTable;
 import table.FileStatsTableModel;
 import table.FileStatsTableColumns;
+import table.util.TableColumnAutoResizer;
 
 import javax.swing.*;
 
@@ -54,7 +55,7 @@ public class SearchApp implements Runnable {
         frame.getContentPane().setLayout(new BorderLayout());
         frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
         frame.getContentPane().add(getFilteredList().getFilterListField(), BorderLayout.NORTH);
-        frame.setPreferredSize(new Dimension(1000, 600));
+        frame.setPreferredSize(new Dimension(1600, 800));
         frame.pack();
         frame.setVisible(true);
     }
@@ -62,7 +63,9 @@ public class SearchApp implements Runnable {
     private FileStatsTable getListTable(ArrayList<FileStats> fileStats, java.util.List<FileStatsTableColumns> tableColumns) {
         FileStatsTableModel tableModel = new FileStatsTableModel(tableColumns);
         tableModel.addRows(fileStats);
-        return new FileStatsTable(tableModel);
+        FileStatsTable fileStatsTable = new FileStatsTable(tableModel);
+        TableColumnAutoResizer.adjustColumnPreferredWidth(fileStatsTable);
+        return fileStatsTable;
     }
 
     private FilteredList getFilteredList() {
