@@ -1,3 +1,4 @@
+import event.TimedEventSinkUtil;
 import io.TestFiles;
 import list.FilteredList;
 import model.FileStats;
@@ -10,6 +11,8 @@ import javax.swing.*;
 
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Arrays;
 import java.util.ArrayList;
 
@@ -46,24 +49,65 @@ public class SearchApp implements Runnable {
     public void run() {
         JFrame frame = new JFrame("Search App");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        JScrollPane scrollPane = null;
+        JScrollPane tableScrollpane = null;
         if (runOptions == RunOptions.LIST) {
-            scrollPane = new JScrollPane(getFilteredList(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            tableScrollpane = new JScrollPane(getFilteredList(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         } else if (runOptions == RunOptions.TABLE) {
-            scrollPane = new JScrollPane(getListTable(fileStats, Arrays.asList(FileStatsTableColumns.values())), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+            tableScrollpane = new JScrollPane(getListTable(fileStats, Arrays.asList(FileStatsTableColumns.values())), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         }
         frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+        frame.getContentPane().add(tableScrollpane, BorderLayout.CENTER);
         frame.getContentPane().add(getFilteredList().getFilterListField(), BorderLayout.NORTH);
+        frame.getContentPane().add(getControlPanel(), BorderLayout.SOUTH);
         frame.setPreferredSize(new Dimension(1600, 800));
         frame.pack();
         frame.setVisible(true);
     }
 
+    private JPanel getControlPanel() {
+         JPanel controlPanel = new JPanel();
+        JButton button = new JButton("Generate Test Events");
+        button.setAction(new Action() {
+            @Override
+            public Object getValue(String key) {
+                return null;
+            }
+
+            @Override
+            public void putValue(String key, Object value) {
+            }
+
+            @Override
+            public void setEnabled(boolean b) {
+            }
+
+            @Override
+            public boolean isEnabled() {
+                return true;
+            }
+
+            @Override
+            public void addPropertyChangeListener(PropertyChangeListener listener) {
+            }
+
+            @Override
+            public void removePropertyChangeListener(PropertyChangeListener listener) {
+            }
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                AWTEvent event = TimedEventSinkUtil.sinkEvent(new ActionEvent(this, 0, null), 2000);
+                System.out.println(String.format("Returned Event is [%s]", event));
+            }
+        });
+        controlPanel.add(button) ;
+        return controlPanel;
+    }
+
     private FileStatsTable getListTable(ArrayList<FileStats> fileStats, java.util.List<FileStatsTableColumns> tableColumns) {
         FileStatsTableModel tableModel = new FileStatsTableModel(tableColumns);
-        tableModel.addRows(fileStats);
         FileStatsTable fileStatsTable = new FileStatsTable(tableModel);
+        tableModel.addRows(fileStats);
         TableColumnAutoResizer.adjustColumnPreferredWidth(fileStatsTable);
         return fileStatsTable;
     }
